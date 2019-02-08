@@ -14,15 +14,17 @@
               login_password="{{ mysql_root_password }}"
 
 - name: Is WordPress downloaded?
-  stat: path="{{ remote_wordpress_dir }}/index.php"
+  stat: path="{{ item.remote_wordpress_dir }}/index.php"
   register: wp_dir
+  with_items: '{{ sites_to_set_up }}'
 
 - name: Create WordPress directory
-  file: path="{{ remote_wordpress_dir }}"
-        owner="{{ remote_deploy_user }}"
-        group="{{ remote_deploy_group }}"
+  file: path="{{ item.remote_wordpress_dir }}"
+        owner="{{ item.remote_deploy_user }}"
+        group="{{ item.remote_deploy_group }}"
         mode=0755
         state=directory
+  with_items: '{{ sites_to_set_up }}'
   when: wp_dir.stat.isdir is not defined
 
 - name: Download WordPress
@@ -34,11 +36,12 @@
 
 - name: Configure WordPress
   command: wp core config
-           --path="{{ remote_wordpress_dir }}"
-           --dbname="{{ wordpress_db_name }}"
-           --dbuser="{{ wordpress_db_user }}"
-           --dbpass="{{ wordpress_db_user_pass }}"
-           --dbprefix="{{ wordpress_db_prefix }}"
+           --path="{{ item.remote_wordpress_dir }}"
+           --dbname="{{ item.wordpress_db_name }}"
+           --dbuser="{{ item.wordpress_db_user }}"
+           --dbpass="{{ item.wordpress_db_user_pass }}"
+           --dbprefix="{{ item.wordpress_db_prefix }}"
+  with_items: '{{ sites_to_set_up }}'
   remote_user: "{{ remote_deploy_user }}"
   when: wp_dir.stat.isdir is not defined
 
@@ -52,28 +55,31 @@
 
 - name: Install WordPress tables
   command: wp core install
-            --url="{{ wordpress_home_url }}"
-            --title="{{ wordpress_site_title }}"
-            --admin_user="{{ wordpress_admin_user }}"
-            --admin_password="{{ wordpress_admin_user_pass }}"
-            --admin_email="{{ wordpress_admin_email }}"
+            --url="{{ item.wordpress_home_url }}"
+            --title="{{ item.wordpress_site_title }}"
+            --admin_user="{{ item.wordpress_admin_user }}"
+            --admin_password="{{ item.wordpress_admin_user_pass }}"
+            --admin_email="{{ item.wordpress_admin_email }}"
   args:
-      chdir: "{{ remote_wordpress_dir }}/"
+      chdir: "{{ item.remote_wordpress_dir }}/"
+  with_items: '{{ sites_to_set_up }}'
   when: wordpress_is_installed|failed
   remote_user: "{{ remote_deploy_user }}"
 
 - name: Install WordPress theme
-  command: "wp theme install {{ wordpress_theme }} --activate"
+  command: "wp theme install {{ item.wordpress_theme }} --activate"
   args:
-    chdir: "{{ remote_wordpress_dir }}"
+    chdir: "{{ item.remote_wordpress_dir }}"
+  with_items: '{{ sites_to_set_up }}'
   when: wp_advanced is defined
 
 - name: Install WordPress plugins
   command: "wp plugin install {{ item }} --activate"
   args:
-    chdir: "{{ remote_wordpress_dir }}"
+    chdir: "{{ item.remote_wordpress_dir }}"
   with_items: wordpress_plugins
   when: wp_advanced is defined
+  with_items: '{{ sites_to_set_up }}'
 
 - name: Download WordPress dummy data
   get_url:
@@ -84,8 +90,10 @@
 - name: Import WordPress dummy data
   command: "wp import {{ item }} --authors=create"
   args:
-    chdir: "{{ remote_wordpress_dir }}"
+    chdir: "{{ item.remote_wordpress_dir }}"
   with_items:
   - wp-content/plugins/woocommerce/dummy-data/dummy-data.xml
   - wptest.xml
   when: wp_dummy_data is defined
+  with_items: '{{ sites_to_set_up }}'
+

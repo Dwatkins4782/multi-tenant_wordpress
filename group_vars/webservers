@@ -4,18 +4,55 @@ remote_deploy_group: deploy
 remote_deploy_home: /home/deploy
 ssh_key_pub_path: /Users/lamosty/.ssh/id_rsa.pub
 
-# role: wordpress-install
-remote_www_dir: "{{ remote_deploy_home}}/projects"
-remote_wordpress_dir: "{{ remote_www_dir }}/wordpress"
-wordpress_db_name: wordpress
-wordpress_db_user: deploy
-wordpress_db_user_pass: deploypass
-wordpress_db_prefix: wp_
-wordpress_home_url: http://example.com
-wordpress_site_title: Test Site
-wordpress_admin_user: admin
-wordpress_admin_user_pass: adminpass
-wordpress_admin_email: email@example.com
+# Sites
+sites_to_set_up:
+  - {
+      # role: wordpress-install
+	remote_www_dir: "{{ remote_deploy_home}}/projects"
+	remote_wordpress_dir: "{{ remote_www_dir }}/wordpress"
+	wordpress_db_name: wordpress_sitedb1
+	wordpress_db_user: deploy
+	wordpress_db_user_pass: deploypass
+	wordpress_db_prefix: wp_
+	wordpress_home_url: www.unitedstates.cci.org
+	wordpress_site_title: UnitedStates Site
+	wordpress_admin_user: admin
+	wordpress_admin_user_pass: adminpass
+	wordpress_admin_email: email@example.com
+	wordpress_theme: OceanWP
+    }
+  - {
+      # role: wordpress-install
+	remote_www_dir: "{{ remote_deploy_home}}/projects"
+	remote_wordpress_dir: "{{ remote_www_dir }}/wordpress"
+	wordpress_db_name: wordpress_sitedb2
+	wordpress_db_user: deploy
+	wordpress_db_user_pass: deploypass
+	wordpress_db_prefix: wp_
+	wordpress_home_url: www.israel.cci.org
+	wordpress_site_title: Israel Site
+	wordpress_admin_user: admin
+	wordpress_admin_user_pass: adminpass
+	wordpress_admin_email: email@example.com
+	wordpress_theme: bizprime
+
+    }
+- {
+      # role: wordpress-install
+	remote_www_dir: "{{ remote_deploy_home}}/projects"
+	remote_wordpress_dir: "{{ remote_www_dir }}/wordpress"
+	wordpress_db_name: wordpress_sitedb3
+	wordpress_db_user: deploy
+	wordpress_db_user_pass: deploypass
+	wordpress_db_prefix: wp_
+	wordpress_home_url: www.poland.cci.org
+	wordpress_site_title: Poland Site
+	wordpress_admin_user: admin
+	wordpress_admin_user_pass: adminpass
+	wordpress_admin_email: email@example.com
+	wordpress_theme: Horizzon
+    }
+  
 
 wordpress_plugins:
 - wordpress-importer
@@ -24,8 +61,9 @@ wordpress_plugins:
 - jetpack
 - wordpress-seo
 - custom-sidebars
+- Akismet Anti-Spam
 
-wordpress_theme: storefront
+
 
 # role: mariadb
 # You can put the password into roles/mariadb/vars/main.yml and add the file to .gitignore for security reasons
