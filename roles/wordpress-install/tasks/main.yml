@@ -1,17 +1,19 @@
 ---
 - name: Create WordPress database
-  mysql_db: name="{{ wordpress_db_name }}"
+  mysql_db: name="{{ item.wordpress_db_name }}"
             state=present
             login_user=root
             login_password="{{ mysql_root_password }}"
+  with_items: '{{ sites_to_set_up }}'
 
 - name: Create WordPress DB user and grant permissions to WordPress DB
-  mysql_user: name="{{ wordpress_db_user }}"
-              password="{{ wordpress_db_user_pass }}"
-              priv="{{ wordpress_db_name }}.*:ALL"
+  mysql_user: name="{{ item.wordpress_db_user }}"
+              password="{{ item.wordpress_db_user_pass }}"
+              priv="{{ item.wordpress_db_name }}.*:ALL"
               state=present
               login_user="root"
               login_password="{{ mysql_root_password }}"
+  with_items: '{{ sites_to_set_up }}'
 
 - name: Is WordPress downloaded?
   stat: path="{{ item.remote_wordpress_dir }}/index.php"
@@ -20,8 +22,8 @@
 
 - name: Create WordPress directory
   file: path="{{ item.remote_wordpress_dir }}"
-        owner="{{ item.remote_deploy_user }}"
-        group="{{ item.remote_deploy_group }}"
+        owner="{{ remote_deploy_user }}"
+        group="{{ remote_deploy_group }}"
         mode=0755
         state=directory
   with_items: '{{ sites_to_set_up }}'
@@ -30,8 +32,9 @@
 - name: Download WordPress
   command: wp core download
   args:
-      chdir: "{{ remote_wordpress_dir }}/"
+      chdir: "{{ item.remote_wordpress_dir }}/"
   remote_user: "{{ remote_deploy_user }}"
+  with_items: '{{ sites_to_set_up }}'
   when: wp_dir.stat.isdir is not defined
 
 - name: Configure WordPress
@@ -48,10 +51,11 @@
 - name: Is WordPress installed?
   command: wp core is-installed
   args:
-    chdir: "{{ remote_wordpress_dir }}/"
+    chdir: "{{ item.remote_wordpress_dir }}/"
   register: wordpress_is_installed
   ignore_errors: True
   remote_user: "{{ remote_deploy_user }}"
+  with_items: '{{ sites_to_set_up }}'
 
 - name: Install WordPress tables
   command: wp core install
@@ -84,7 +88,8 @@
 - name: Download WordPress dummy data
   get_url:
     url: https://raw.githubusercontent.com/manovotny/wptest/master/wptest.xml
-    dest: "{{ remote_wordpress_dir }}/wptest.xml"
+    dest: "{{ item.remote_wordpress_dir }}/wptest.xml"
+  with_items: '{{ sites_to_set_up }}'
   when: wp_advanced is defined
 
 - name: Import WordPress dummy data
@@ -94,6 +99,7 @@
   with_items:
   - wp-content/plugins/woocommerce/dummy-data/dummy-data.xml
   - wptest.xml
-  when: wp_dummy_data is defined
   with_items: '{{ sites_to_set_up }}'
+  when: wp_dummy_data is defined
+  
 
