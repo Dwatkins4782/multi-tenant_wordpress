@@ -13,7 +13,7 @@
     - common
     - php
     - wp-cli
-    - mariadb
+    - mysql
     - wordpress-install
     - php-fpm
     - nginx

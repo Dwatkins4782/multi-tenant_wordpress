@@ -65,6 +65,6 @@ wordpress_plugins:
 
 
 
-# role: mariadb
+# role: mariadb/mysql
 # You can put the password into roles/mariadb/vars/main.yml and add the file to .gitignore for security reasons
 mysql_root_password: mariadbpass
