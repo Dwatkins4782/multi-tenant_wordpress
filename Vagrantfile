@@ -41,7 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   # Application server 3.
-  config.vm.define "app2" do |app|
+  config.vm.define "app3" do |app|
     app.vm.hostname = "app3.dev"
     app.vm.box = "ubuntu/xenial64"
     app.vm.network "private_network", ip: "192.168.33.30"
