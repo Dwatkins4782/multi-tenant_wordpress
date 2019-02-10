@@ -2,9 +2,7 @@
 - name: >
     Installs PHP, WP-CLI, MariaDB, WordPress, PHP-FPM, Nginx, Apache2, HHVM,
     Redis. Disables the software from starting on boot and stops them.
-    Run other playbooks to set up the server for serving, for example:
-    wordpress_basic.yml with nginx_php-fpm.yml: WordPress with default theme
-    served on Nginx with PHP-FPM.
+    Run other playbooks to set up the server for serving.
 
   hosts: webservers
   remote_user: root
