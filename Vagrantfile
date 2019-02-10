@@ -23,6 +23,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "256"] 
   end
+  
+  config.vm.synced_folder ".", "/vagrant"
 
   # Application server 1.
   config.vm.define "app1" do |app|
@@ -52,10 +54,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     db.vm.network "private_network", ip: "192.168.33.40"
   end
 
-  config.vm.provision "ansible" do |ansible|
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.install_mode = "pip"
+    ansible.compatibility_mode = "2.0"
     ansible.verbose = "v"
     ansible.playbook = "playbook.yml"
+    
+    ansible.limit = "all"
   end
+  
 end
 
 # Disable the new default behavior introduced in Vagrant 1.7, to
